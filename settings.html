@@ -120,6 +120,30 @@
         alert("Settings saved!");
     }
 
+    async function restoreFromCloud() {
+        const token = document.getElementById('githubToken').value;
+        if(!token) { alert("Please enter a GitHub Token first."); return; }
+        
+        if(!confirm("Overwrite local data with Cloud Backup? Ensure your PIN matches the one used for the backup.")) return;
+
+        try {
+            const result = await restoreFromGist(token);
+            // Decrypt with CURRENT session PIN
+            const data = await decryptData(result.data, getSessionPin());
+            
+            // If success, update data and gistId
+            appData = data;
+            appData.settings.gistId = result.id; // Ensure ID matches
+            
+            await saveData();
+            alert("Restored from Cloud successfully!");
+            location.reload();
+        } catch(e) {
+            console.error(e);
+            alert("Failed to restore. Check your Token, or maybe the backup was encrypted with a different PIN.");
+        }
+    }
+
     /* ---------- PIN CHANGE ---------- */
     // Reusing the modal logic from common approach or creating new
     let modalCallback = null;
