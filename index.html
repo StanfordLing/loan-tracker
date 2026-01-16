@@ -1,42 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Loan Tracker</title>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007aff">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
-:root {
-  --bg:#f4f4f4; --card:#fff; --text:#000; --accent:#007aff;
-}
-.dark {
-  --bg:#121212; --card:#1e1e1e; --text:#fff;
-}
-body {
-  margin:0; font-family:system-ui; background:var(--bg); color:var(--text);
-}
-header {
-  padding:12px; background:var(--accent); color:#fff;
-  display:flex; justify-content:space-between; align-items:center;
-}
-button, input, select {
-  width:100%; padding:10px; margin:6px 0;
-}
-button {
-  background:var(--accent); color:#fff; border:none; border-radius:6px;
-}
-.card {
-  background:var(--card); margin:12px; padding:12px; border-radius:8px;
-}
-.row { display:flex; gap:8px; }
-.small { font-size:14px; opacity:0.7; }
-.positive { color:green; }
+:root { --bg:#f4f4f4; --card:#fff; --text:#000; }
+.dark { --bg:#121212; --card:#1e1e1e; --text:#fff; }
+body { margin:0; font-family:system-ui; background:var(--bg); color:var(--text); }
+header { background:#007aff; color:#fff; padding:12px; display:flex; justify-content:space-between; }
+.card { background:var(--card); margin:12px; padding:12px; border-radius:8px; }
+input,select,button { width:100%; padding:10px; margin:6px 0; }
+button { background:#007aff; color:#fff; border:none; border-radius:6px; }
+.warn { background:#ffdada; color:#900; padding:10px; margin:12px; border-radius:6px; }
 .negative { color:red; }
-.list-item {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:6px 0;
-}
-.list-item span { cursor:pointer; }
+.overdue { color:red; font-weight:bold; }
 </style>
 </head>
 
@@ -47,151 +30,195 @@ button {
   <button onclick="toggleDark()">🌙</button>
 </header>
 
-<div class="card">
-  <h3>Settings</h3>
-  <input id="currency" placeholder="Currency symbol (₹, $, €)">
-  <input id="password" placeholder="Set password (optional)">
-  <button onclick="saveSettings()">Save Settings</button>
+<div id="warn" class="warn" style="display:none"></div>
+
+<div id="lock" class="card" style="display:none">
+  <h3>Enter PIN</h3>
+  <input type="password" id="pinInput">
+  <button onclick="unlock()">Unlock</button>
 </div>
 
+<div id="app">
+
 <div class="card">
-  <h3>Add Person</h3>
-  <input id="newPerson" placeholder="Person name">
-  <button onclick="addPerson()">Add</button>
+  <h3>Settings</h3>
+  <input id="currency" placeholder="Currency (₹ $ €)">
+  <input id="pin" placeholder="Set PIN (optional)">
+  <select id="ledger"></select>
+  <input id="newLedger" placeholder="New ledger name">
+  <button onclick="addLedger()">Add Ledger</button>
+  <button onclick="saveSettings()">Save</button>
 </div>
 
 <div class="card">
   <h3>Add Transaction</h3>
-  <select id="personSelect"></select>
+  <input id="person" placeholder="Person">
   <select id="type">
     <option value="borrow">Borrow</option>
     <option value="repay">Repay</option>
   </select>
   <input id="amount" type="number" placeholder="Amount">
-  <button onclick="addTransaction()">Save</button>
+  <input id="due" type="date">
+  <button onclick="addTx()">Save</button>
 </div>
 
 <div class="card">
   <h3>Balances</h3>
   <div id="balances"></div>
-  <strong>Total: <span id="total">0</span></strong>
+  <strong>Total: <span id="total"></span></strong>
 </div>
 
 <div class="card">
-  <h3>Transactions</h3>
+  <h3>Chart</h3>
+  <canvas id="chart" height="200"></canvas>
+</div>
+
+<div class="card">
+  <h3>History</h3>
   <div id="history"></div>
 </div>
 
 <div class="card">
-  <h3>Backup</h3>
-  <button onclick="exportData()">Export Backup</button>
-  <input type="file" onchange="importData(event)">
+  <h3>Export</h3>
+  <button onclick="exportCSV()">Export CSV</button>
+  <button onclick="backup()">Backup JSON</button>
+  <input type="file" onchange="restore(event)">
 </div>
 
-<script>
-let data = JSON.parse(localStorage.getItem('loanData') || '{}');
-data.people ||= [];
-data.transactions ||= [];
-data.settings ||= { currency:'', dark:false, password:'' };
+</div>
 
-function save() {
-  localStorage.setItem('loanData', JSON.stringify(data));
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* ---------- STORAGE TEST ---------- */
+function storageOK(){
+  try{localStorage.setItem('_t','1');localStorage.removeItem('_t');return true}catch{return false}
+}
+if(window.self!==window.top || !storageOK()){
+  warn.style.display='block';
+  warn.innerHTML='⚠️ Storage blocked. Use GitHub Pages (not InfinityFree).';
+}
+
+/* ---------- DATA ---------- */
+let data = JSON.parse(localStorage.getItem('loanApp')||'{}');
+data.ledgers ||= { Default:[] };
+data.current ||= 'Default';
+data.settings ||= { currency:'', dark:false, pin:'' };
+
+/* ---------- LOCK ---------- */
+if(data.settings.pin){
+  lock.style.display='block';
+  app.style.display='none';
+}
+function unlock(){
+  if(pinInput.value===data.settings.pin){
+    lock.style.display='none'; app.style.display='block';
+  }
+}
+
+/* ---------- SETTINGS ---------- */
+function save(){
+  localStorage.setItem('loanApp',JSON.stringify(data));
   render();
 }
-
-function toggleDark() {
-  data.settings.dark = !data.settings.dark;
+function saveSettings(){
+  data.settings.currency=currency.value;
+  data.settings.pin=pin.value;
+  save();
+}
+function toggleDark(){
+  data.settings.dark=!data.settings.dark; save();
+}
+function addLedger(){
+  if(!newLedger.value) return;
+  data.ledgers[newLedger.value]=[];
+  data.current=newLedger.value;
+  newLedger.value='';
   save();
 }
 
-function saveSettings() {
-  data.settings.currency = currency.value;
-  data.settings.password = password.value;
-  save();
-}
-
-function addPerson() {
-  if (!newPerson.value) return;
-  data.people.push(newPerson.value);
-  newPerson.value='';
-  save();
-}
-
-function addTransaction() {
-  if (!amount.value) return;
-  data.transactions.push({
+/* ---------- TRANSACTIONS ---------- */
+function addTx(){
+  data.ledgers[data.current].push({
     id:Date.now(),
-    person:personSelect.value,
-    type:type.value,
-    amount:+amount.value,
-    date:new Date().toLocaleString()
+    p:person.value,
+    t:type.value,
+    a:+amount.value,
+    d:due.value
   });
-  amount.value='';
+  person.value=amount.value=due.value='';
   save();
 }
 
-function deleteTransaction(id) {
-  data.transactions = data.transactions.filter(t=>t.id!==id);
-  save();
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'loan-backup.json';
+/* ---------- EXPORT ---------- */
+function exportCSV(){
+  let rows=['Person,Type,Amount,Due'];
+  data.ledgers[data.current].forEach(t=>{
+    rows.push(`${t.p},${t.t},${t.a},${t.d}`);
+  });
+  let blob=new Blob([rows.join('\n')]);
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='loans.csv';
   a.click();
 }
-
-function importData(e) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    data = JSON.parse(reader.result);
-    save();
-  };
-  reader.readAsText(e.target.files[0]);
+function backup(){
+  let blob=new Blob([JSON.stringify(data)]);
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='backup.json';
+  a.click();
+}
+function restore(e){
+  let r=new FileReader();
+  r.onload=()=>{data=JSON.parse(r.result);save()};
+  r.readAsText(e.target.files[0]);
 }
 
-function render() {
-  document.body.className = data.settings.dark ? 'dark' : '';
-  currency.value = data.settings.currency || '';
-  password.value = data.settings.password || '';
+/* ---------- RENDER ---------- */
+let chart;
+function render(){
+  document.body.className=data.settings.dark?'dark':'';
+  currency.value=data.settings.currency;
+  pin.value=data.settings.pin;
 
-  personSelect.innerHTML = data.people.map(p=>`<option>${p}</option>`).join('');
+  ledger.innerHTML=Object.keys(data.ledgers)
+    .map(l=>`<option ${l===data.current?'selected':''}>${l}</option>`).join('');
+  ledger.onchange=()=>{data.current=ledger.value;save()};
 
-  let balances = {}, total=0;
-  data.transactions.forEach(t=>{
-    balances[t.person] ||= 0;
-    balances[t.person] += t.type==='borrow'?t.amount:-t.amount;
-  });
-
-  balancesDiv.innerHTML='';
-  balancesDiv = document.getElementById('balances');
-  balancesDiv.innerHTML='';
-  for (let p in balances) {
-    const v = balances[p]; total+=v;
-    balancesDiv.innerHTML +=
-      `<div class="${v>=0?'positive':'negative'}">${p}: ${data.settings.currency}${v}</div>`;
-  }
-  totalSpan=document.getElementById('total');
-  totalSpan.textContent = data.settings.currency + total;
-
+  let bal={}, total=0;
+  let today=new Date().toISOString().slice(0,10);
   history.innerHTML='';
-  data.transactions.slice().reverse().forEach(t=>{
+  data.ledgers[data.current].forEach(t=>{
+    bal[t.p] ||= 0;
+    bal[t.p]+= t.t==='borrow'?t.a:-t.a;
     history.innerHTML+=`
-      <div class="list-item">
-        <span>${t.date} — ${t.person} — ${t.type} ${data.settings.currency}${t.amount}</span>
-        <span onclick="deleteTransaction(${t.id})">❌</span>
+      <div class="${t.d && t.d<today?'overdue':''}">
+        ${t.p} ${t.t} ${data.settings.currency}${t.a} ${t.d||''}
       </div>`;
   });
-}
 
-if (data.settings.password) {
-  let p = prompt("Enter password");
-  if (p !== data.settings.password) document.body.innerHTML="Locked";
-}
+  balances.innerHTML='';
+  let labels=[],values=[];
+  for(let p in bal){
+    balances.innerHTML+=`<div class="${bal[p]<0?'negative':''}">
+      ${p}: ${data.settings.currency}${bal[p]}
+    </div>`;
+    labels.push(p); values.push(bal[p]); total+=bal[p];
+  }
+  totalSpan.textContent=data.settings.currency+total;
 
+  if(chart) chart.destroy();
+  chart=new Chart(document.getElementById('chart'),{
+    type:'bar',
+    data:{labels,datasets:[{data:values}]}
+  });
+}
 render();
+
+/* ---------- SERVICE WORKER ---------- */
+if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
 </script>
 
 </body>
