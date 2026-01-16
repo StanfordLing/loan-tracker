@@ -187,6 +187,31 @@
             render();
         });
     }
+
+    function editLedger() {
+        const ledger = appData.ledgers[currentLedger];
+        showModal("Rename Ledger", "Ledger Name", ledger.name, async name => {
+            if (!name) return;
+            ledger.name = name;
+            await saveData();
+            render();
+        });
+    }
+
+    async function deleteLedger() {
+        if(Object.keys(appData.ledgers).length <= 1) {
+            alert("Cannot delete the last ledger.");
+            return;
+        }
+        
+        const ledger = appData.ledgers[currentLedger];
+        if(!confirm(`Delete ledger "${ledger.name}" and ALL its data?`)) return;
+
+        delete appData.ledgers[currentLedger];
+        currentLedger = Object.keys(appData.ledgers)[0];
+        await saveData();
+        render();
+    }
 </script>
 </body>
 </html>
