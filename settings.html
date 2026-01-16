@@ -114,9 +114,49 @@
         }
 
         async function saveSettings() {
-            appData.settings.currency = document.getElementById('currency').value;
-            appData.settings.theme = document.getElementById('theme').value;
-            appData.settings.githubToken = document.getElementById('githubToken').value;
+            const currency = document.getElementById('currency').value;
+            const theme = document.getElementById('theme').value;
+            const newToken = document.getElementById('githubToken').value;
+            const oldToken = appData.settings.githubToken;
+
+            // Check if token changed and is not empty
+            if (newToken && newToken !== oldToken) {
+                try {
+                    const gist = await findBackupGist(newToken);
+                    if (gist) {
+                        // Found a backup
+                        const userChoice = confirm("Found an existing backup on GitHub.\n\nClick OK to DOWNLOAD & RESTORE it (recommended).\nClick Cancel to KEEP LOCAL DATA and overwrite the cloud backup.");
+
+                        if (userChoice) {
+                            try {
+                                const result = await restoreFromGist(newToken);
+                                // Decrypt with CURRENT session PIN
+                                const data = await decryptData(result.data, getSessionPin());
+
+                                // Update data
+                                appData = data;
+                                appData.settings.gistId = result.id;
+                                appData.settings.githubToken = newToken; // Ensure new token is kept
+
+                                await saveData();
+                                alert("Restored from Cloud successfully!");
+                                location.reload();
+                                return;
+                            } catch (e) {
+                                console.error(e);
+                                alert("Failed to restore. The backup might be encrypted with a different PIN.");
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error checking for backup:", e);
+                }
+            }
+
+            appData.settings.currency = currency;
+            appData.settings.theme = theme;
+            appData.settings.githubToken = newToken;
 
             await saveData();
             applyTheme();
