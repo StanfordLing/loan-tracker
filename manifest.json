@@ -1,6 +1,6 @@
 {
-  "name": "Loan Tracker",
-  "short_name": "LoanTracker",
+  "name": "DebtPal",
+  "short_name": "DebtPal",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
