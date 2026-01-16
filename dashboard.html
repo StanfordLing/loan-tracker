@@ -29,18 +29,25 @@
 
   <!-- OVERVIEW -->
   <div id="overviewPage">
+    <!-- LEDGER SELECTOR -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body p-2 d-flex align-items-center justify-content-between">
+            <span class="fw-bold me-2">Ledger:</span>
+            <select id="ledgerSelect" class="form-select w-auto flex-grow-1 me-2" onchange="switchLedger(this.value)"></select>
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="showAddLedger()">+</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="editLedger()">✎</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="deleteLedger()">🗑</button>
+            </div>
+        </div>
+    </div>
+
     <h4>Total Balance: <span id="totalBalance">...</span></h4>
     
     <button class="btn btn-success mb-2" onclick="showAddPerson()">Add Person</button>
     
     <div class="card mb-3 shadow-sm">
         <ul class="list-group list-group-flush" id="peopleList"></ul>
-    </div>
-
-    <hr>
-    <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-secondary" onclick="showAddLedger()">Add Ledger</button>
-        <select id="ledgerSelect" class="form-select w-auto" onchange="switchLedger(this.value)"></select>
     </div>
   </div>
 </div>
