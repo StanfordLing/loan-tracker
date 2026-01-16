@@ -1,244 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DebtPal - Settings</title>
-  <link rel="icon" type="image/png" href="icon-192.png">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="manifest" href="manifest.json">
-  <style>
-    html, body { touch-action: pan-x pan-y; }
-    body.dark { background: #121212; color: #fff; }
-    body.dark .form-control, body.dark .form-select { background: #1e1e1e; color: #fff; border-color: #333; }
-    body.dark .card { background: #1e1e1e; color: #fff; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DebtPal - Settings</title>
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        html,
+        body {
+            touch-action: pan-x pan-y;
+        }
+    </style>
 </head>
+
 <body class="bg-light">
 
-<div class="container">
-  <div class="my-3 d-flex align-items-center">
-    <button onclick="goBack()" class="btn btn-outline-secondary me-3">← Back</button>
-    <h4 class="m-0">Settings</h4>
-  </div>
-
-  <div class="card mb-3 shadow-sm">
-      <div class="card-body">
-          <div class="mb-3">
-              <label class="form-label">Currency Symbol</label>
-              <input id="currency" class="form-control" placeholder="₹, $, €...">
-          </div>
-          <div class="mb-3">
-              <label class="form-label">Theme</label>
-              <select id="theme" class="form-select">
-                <option value="system">System Default</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-          </div>
-          <div class="mb-3">
-              <label class="form-label">GitHub Token (Cloud Sync)</label>
-              <input type="password" id="githubToken" class="form-control" placeholder="ghp_...">
-              <div class="form-text">
-                  Generate a Personal Access Token with <b>'gist'</b> scope.
-                  <a href="https://github.com/settings/tokens" target="_blank" class="text-decoration-none">Get Token Here</a>
-              </div>
-          </div>
-          <button class="btn btn-primary w-100" onclick="saveSettings()">Save Settings</button>
-      </div>
-  </div>
-
-  <div class="card mb-3 shadow-sm border-warning">
-      <div class="card-body">
-          <h5 class="card-title text-warning">Security</h5>
-          <button class="btn btn-warning w-100 mb-2" onclick="showChangePin()">Change PIN</button>
-          <div class="text-muted small">This will re-encrypt all your data with the new PIN.</div>
-      </div>
-  </div>
-
-  <div class="card mb-3 shadow-sm">
-      <div class="card-body">
-          <h5 class="card-title">Data Management</h5>
-          <button class="btn btn-outline-primary w-100 mb-2" onclick="backup()">Export Backup</button>
-          <div class="input-group mb-3">
-              <input type="file" class="form-control" id="restoreFile" onchange="restore(event)">
-              <label class="input-group-text" for="restoreFile">Import</label>
-          </div>
-          <hr>
-          <button class="btn btn-danger w-100" onclick="resetApp()">Reset App (Delete All)</button>
-      </div>
-  </div>
-
-</div>
-
-<!-- INPUT MODAL -->
-<div class="modal fade" id="inputModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle">Title</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="container">
+        <div class="my-3 d-flex align-items-center">
+            <button onclick="goBack()" class="btn btn-outline-secondary me-3">← Back</button>
+            <h4 class="m-0">Settings</h4>
         </div>
-        <div class="modal-body">
-          <input type="text" id="modalInput" class="form-control">
+
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Currency Symbol</label>
+                    <input id="currency" class="form-control" placeholder="₹, $, €...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Theme</label>
+                    <select id="theme" class="form-select">
+                        <option value="system">System Default</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">GitHub Token (Cloud Sync)</label>
+                    <input type="password" id="githubToken" class="form-control" placeholder="ghp_...">
+                    <div class="form-text">
+                        Generate a Personal Access Token with <b>'gist'</b> scope.
+                        <a href="https://github.com/settings/tokens" target="_blank" class="text-decoration-none">Get
+                            Token Here</a>
+                    </div>
+                </div>
+                <button class="btn btn-primary w-100" onclick="saveSettings()">Save Settings</button>
+            </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" id="modalSaveBtn">Save</button>
+
+        <div class="card mb-3 shadow-sm border-warning">
+            <div class="card-body">
+                <h5 class="card-title text-warning">Security</h5>
+                <button class="btn btn-warning w-100 mb-2" onclick="showChangePin()">Change PIN</button>
+                <div class="text-muted small">This will re-encrypt all your data with the new PIN.</div>
+            </div>
         </div>
-      </div>
+
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Data Management</h5>
+                <button class="btn btn-outline-primary w-100 mb-2" onclick="backup()">Export Backup</button>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="restoreFile" onchange="restore(event)">
+                    <label class="input-group-text" for="restoreFile">Import</label>
+                </div>
+                <hr>
+                <button class="btn btn-danger w-100" onclick="resetApp()">Reset App (Delete All)</button>
+            </div>
+        </div>
+
     </div>
-  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/common.js"></script>
-<script>
-    /* ---------- INIT ---------- */
-    async function init() {
-        if(!requireAuth()) return;
-        const data = await loadData();
-        if(data) {
+    <!-- INPUT MODAL -->
+    <div class="modal fade" id="inputModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="modalInput" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="modalSaveBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        /* ---------- INIT ---------- */
+        async function init() {
+            if (!requireAuth()) return;
+            const data = await loadData();
+            if (data) {
+                applyTheme();
+                render();
+            }
+        }
+        init();
+
+        function render() {
+            document.getElementById('currency').value = appData.settings.currency;
+            document.getElementById('theme').value = appData.settings.theme;
+            document.getElementById('githubToken').value = appData.settings.githubToken || "";
+        }
+
+        async function saveSettings() {
+            appData.settings.currency = document.getElementById('currency').value;
+            appData.settings.theme = document.getElementById('theme').value;
+            appData.settings.githubToken = document.getElementById('githubToken').value;
+
+            await saveData();
             applyTheme();
-            render();
+            alert("Settings saved!");
         }
-    }
-    init();
 
-    function render() {
-        document.getElementById('currency').value = appData.settings.currency;
-        document.getElementById('theme').value = appData.settings.theme;
-        document.getElementById('githubToken').value = appData.settings.githubToken || "";
-    }
+        async function restoreFromCloud() {
+            const token = document.getElementById('githubToken').value;
+            if (!token) { alert("Please enter a GitHub Token first."); return; }
 
-    async function saveSettings() {
-        appData.settings.currency = document.getElementById('currency').value;
-        appData.settings.theme = document.getElementById('theme').value;
-        appData.settings.githubToken = document.getElementById('githubToken').value;
-        
-        await saveData();
-        applyTheme();
-        alert("Settings saved!");
-    }
+            if (!confirm("Overwrite local data with Cloud Backup? Ensure your PIN matches the one used for the backup.")) return;
 
-    async function restoreFromCloud() {
-        const token = document.getElementById('githubToken').value;
-        if(!token) { alert("Please enter a GitHub Token first."); return; }
-        
-        if(!confirm("Overwrite local data with Cloud Backup? Ensure your PIN matches the one used for the backup.")) return;
-
-        try {
-            const result = await restoreFromGist(token);
-            // Decrypt with CURRENT session PIN
-            const data = await decryptData(result.data, getSessionPin());
-            
-            // If success, update data and gistId
-            appData = data;
-            appData.settings.gistId = result.id; // Ensure ID matches
-            
-            await saveData();
-            alert("Restored from Cloud successfully!");
-            location.reload();
-        } catch(e) {
-            console.error(e);
-            alert("Failed to restore. Check your Token, or maybe the backup was encrypted with a different PIN.");
-        }
-    }
-
-    /* ---------- PIN CHANGE ---------- */
-    // Reusing the modal logic from common approach or creating new
-    let modalCallback = null;
-    const inputModal = new bootstrap.Modal(document.getElementById('inputModal'));
-    
-    function showModal(title, placeholder, defaultValue, callback) {
-        document.getElementById('modalTitle').textContent = title;
-        const input = document.getElementById('modalInput');
-        input.placeholder = placeholder || '';
-        input.value = defaultValue || '';
-        modalCallback = callback;
-        inputModal.show();
-    }
-    document.getElementById('modalSaveBtn').onclick = function () { if (modalCallback) modalCallback(document.getElementById('modalInput').value); inputModal.hide(); }
-
-    function showChangePin() {
-        showModal("Change PIN", "Enter new 6-digit PIN", "", async newPin => {
-            if (!newPin || newPin.length < 6) { alert("PIN must be at least 6 digits."); return; }
-            
-            const currentPin = prompt("Enter CURRENT PIN to confirm:");
-            if (!currentPin) return;
-
-            // Verify current pin by trying to decrypt current data
-            // We can just check session pin, but better to actually try decrypting a fresh read
-            // However, we already have appData loaded. 
-            // Let's verify against session pin for simplicity or try a decrypt.
-            if(currentPin !== getSessionPin()) {
-                alert("Incorrect current PIN.");
-                return;
-            }
-
-            // Update session pin
-            setSessionPin(newPin);
-            // Save data with new pin
-            await saveData();
-            alert("PIN changed successfully!");
-        });
-    }
-
-    /* ---------- BACKUP / RESTORE ---------- */
-    async function backup() {
-        // We export the raw encrypted data wrapper so it can be restored exactly
-        // OR we export the plain JSON? 
-        // Original app exported the ENCRYPTED blob. Let's stick to that for security.
-        const pin = getSessionPin();
-        const encrypted = await encryptData(appData, pin);
-        
-        const blob = new Blob([JSON.stringify(encrypted)]);
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'loan-backup.json';
-        a.click();
-    }
-
-    function restore(e) {
-        const file = e.target.files[0];
-        if(!file) return;
-
-        const r = new FileReader();
-        r.onload = async () => {
             try {
-                // Try to decrypt with current session PIN
-                const payload = JSON.parse(r.result);
-                const pin = getSessionPin();
-                const data = await decryptData(payload, pin);
-                
-                if(confirm("Valid backup found. Overwrite current data?")) {
-                    appData = data;
-                    await saveData();
-                    alert("Restored successfully!");
-                    location.reload();
-                }
-            } catch(e) {
+                const result = await restoreFromGist(token);
+                // Decrypt with CURRENT session PIN
+                const data = await decryptData(result.data, getSessionPin());
+
+                // If success, update data and gistId
+                appData = data;
+                appData.settings.gistId = result.id; // Ensure ID matches
+
+                await saveData();
+                alert("Restored from Cloud successfully!");
+                location.reload();
+            } catch (e) {
                 console.error(e);
-                alert("Failed to restore. The backup might be corrupted or encrypted with a different PIN.");
+                alert("Failed to restore. Check your Token, or maybe the backup was encrypted with a different PIN.");
             }
-        };
-        r.readAsText(file);
-    }
-
-    function resetApp() {
-        if(confirm("DELETE ALL DATA? This cannot be undone.")) {
-            localStorage.removeItem('loanApp');
-            clearSession();
-            window.location.href = 'index.html';
         }
-    }
 
-    function goBack() {
-        if (history.length > 1) {
-            history.back();
-        } else {
-            window.location.href = 'dashboard.html';
+        /* ---------- PIN CHANGE ---------- */
+        // Reusing the modal logic from common approach or creating new
+        let modalCallback = null;
+        const inputModal = new bootstrap.Modal(document.getElementById('inputModal'));
+
+        function showModal(title, placeholder, defaultValue, callback) {
+            document.getElementById('modalTitle').textContent = title;
+            const input = document.getElementById('modalInput');
+            input.placeholder = placeholder || '';
+            input.value = defaultValue || '';
+            modalCallback = callback;
+            inputModal.show();
         }
-    }
-</script>
+        document.getElementById('modalSaveBtn').onclick = function () { if (modalCallback) modalCallback(document.getElementById('modalInput').value); inputModal.hide(); }
+
+        function showChangePin() {
+            showModal("Change PIN", "Enter new 6-digit PIN", "", async newPin => {
+                if (!newPin || newPin.length < 6) { alert("PIN must be at least 6 digits."); return; }
+
+                const currentPin = prompt("Enter CURRENT PIN to confirm:");
+                if (!currentPin) return;
+
+                // Verify current pin by trying to decrypt current data
+                // We can just check session pin, but better to actually try decrypting a fresh read
+                // However, we already have appData loaded. 
+                // Let's verify against session pin for simplicity or try a decrypt.
+                if (currentPin !== getSessionPin()) {
+                    alert("Incorrect current PIN.");
+                    return;
+                }
+
+                // Update session pin
+                setSessionPin(newPin);
+                // Save data with new pin
+                await saveData();
+                alert("PIN changed successfully!");
+            });
+        }
+
+        /* ---------- BACKUP / RESTORE ---------- */
+        async function backup() {
+            // We export the raw encrypted data wrapper so it can be restored exactly
+            // OR we export the plain JSON? 
+            // Original app exported the ENCRYPTED blob. Let's stick to that for security.
+            const pin = getSessionPin();
+            const encrypted = await encryptData(appData, pin);
+
+            const blob = new Blob([JSON.stringify(encrypted)]);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'loan-backup.json';
+            a.click();
+        }
+
+        function restore(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const r = new FileReader();
+            r.onload = async () => {
+                try {
+                    // Try to decrypt with current session PIN
+                    const payload = JSON.parse(r.result);
+                    const pin = getSessionPin();
+                    const data = await decryptData(payload, pin);
+
+                    if (confirm("Valid backup found. Overwrite current data?")) {
+                        appData = data;
+                        await saveData();
+                        alert("Restored successfully!");
+                        location.reload();
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Failed to restore. The backup might be corrupted or encrypted with a different PIN.");
+                }
+            };
+            r.readAsText(file);
+        }
+
+        function resetApp() {
+            if (confirm("DELETE ALL DATA? This cannot be undone.")) {
+                localStorage.removeItem('loanApp');
+                clearSession();
+                window.location.href = 'index.html';
+            }
+        }
+
+        function goBack() {
+            if (history.length > 1) {
+                history.back();
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
 </body>
+
 </html>

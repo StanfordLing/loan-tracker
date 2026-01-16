@@ -1,226 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DebtPal - Dashboard</title>
-  <link rel="icon" type="image/png" href="icon-192.png">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="manifest" href="manifest.json">
-  <style>
-    html, body { touch-action: pan-x pan-y; }
-    body.dark { background: #121212; color: #fff; }
-    .list-group-item { cursor: pointer; }
-    body.dark .list-group-item { background: #1e1e1e; color: #fff; border-color: #333; }
-    body.dark .form-select, body.dark .form-control { background: #1e1e1e; color: #fff; border-color: #333; }
-    body.dark .modal-content { background: #1e1e1e; color: #fff; }
-    .amount-col { font-family: monospace; text-align: right; min-width: 100px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DebtPal - Dashboard</title>
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        html,
+        body {
+            touch-action: pan-x pan-y;
+        }
+
+        .list-group-item {
+            cursor: pointer;
+        }
+
+        .amount-col {
+            font-family: monospace;
+            text-align: right;
+            min-width: 100px;
+        }
+    </style>
 </head>
+
 <body class="bg-light">
 
-<div class="container">
-  <!-- NAV -->
-  <ul class="nav nav-pills my-3 justify-content-between">
-    <li class="nav-item"><a class="nav-link active" href="#">Overview</a></li>
-    <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
-    <li class="nav-item"><button class="btn btn-outline-secondary" onclick="logout()">Logout</button></li>
-  </ul>
+    <div class="container">
+        <!-- NAV -->
+        <ul class="nav nav-pills my-3 justify-content-between">
+            <li class="nav-item"><a class="nav-link active" href="#">Overview</a></li>
+            <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
+            <li class="nav-item"><button class="btn btn-outline-secondary" onclick="logout()">Logout</button></li>
+        </ul>
 
-  <!-- OVERVIEW -->
-  <div id="overviewPage">
-    <!-- LEDGER SELECTOR -->
-    <div class="card mb-3 shadow-sm">
-        <div class="card-body p-2 d-flex align-items-center justify-content-between">
-            <span class="fw-bold me-2">Ledger:</span>
-            <select id="ledgerSelect" class="form-select w-auto flex-grow-1 me-2" onchange="switchLedger(this.value)"></select>
-            <div class="btn-group">
-                <button class="btn btn-outline-secondary btn-sm" onclick="showAddLedger()">+</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="editLedger()">✎</button>
-                <button class="btn btn-outline-danger btn-sm" onclick="deleteLedger()">🗑</button>
+        <!-- OVERVIEW -->
+        <div id="overviewPage">
+            <!-- LEDGER SELECTOR -->
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body p-2 d-flex align-items-center justify-content-between">
+                    <span class="fw-bold me-2">Ledger:</span>
+                    <select id="ledgerSelect" class="form-select w-auto flex-grow-1 me-2"
+                        onchange="switchLedger(this.value)"></select>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showAddLedger()">+</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="editLedger()">✎</button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteLedger()">🗑</button>
+                    </div>
+                </div>
+            </div>
+
+            <h4>Total Balance: <span id="totalBalance">...</span></h4>
+
+            <button class="btn btn-success mb-2" onclick="showAddPerson()">Add Person</button>
+
+            <div class="card mb-3 shadow-sm">
+                <ul class="list-group list-group-flush" id="peopleList"></ul>
             </div>
         </div>
     </div>
 
-    <h4>Total Balance: <span id="totalBalance">...</span></h4>
-    
-    <button class="btn btn-success mb-2" onclick="showAddPerson()">Add Person</button>
-    
-    <div class="card mb-3 shadow-sm">
-        <ul class="list-group list-group-flush" id="peopleList"></ul>
+    <!-- INPUT MODAL -->
+    <div class="modal fade" id="inputModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="modalInput" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="modalSaveBtn">Save</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- INPUT MODAL -->
-<div class="modal fade" id="inputModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle">Title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="modalInput" class="form-control">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" id="modalSaveBtn">Save</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/common.js"></script>
-<script>
-    /* ---------- INIT ---------- */
-    async function init() {
-        if(!requireAuth()) return;
-        const data = await loadData();
-        if(data) {
-            applyTheme();
-            render();
-            checkShortcuts();
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        /* ---------- INIT ---------- */
+        async function init() {
+            if (!requireAuth()) return;
+            const data = await loadData();
+            if (data) {
+                applyTheme();
+                render();
+                checkShortcuts();
+            }
         }
-    }
-    init();
+        init();
 
-    function checkShortcuts() {
-        const params = new URLSearchParams(window.location.search);
-        const action = params.get('action');
-        if(action === 'borrow' || action === 'repay') {
-            // Wait a bit for render
-            setTimeout(() => {
-                // Focus search or highlight people to indicate selection needed
-                alert(`Select a person to ${action}`);
-            }, 500);
-        }
-    }
-
-    /* ---------- RENDER ---------- */
-    function render() {
-        // Theme already applied
-        const ledger = appData.ledgers[currentLedger];
-        
-        // Ledger Select
-        const select = document.getElementById('ledgerSelect');
-        select.innerHTML = '';
-        Object.keys(appData.ledgers).forEach(id => {
-            select.innerHTML += `<option value="${id}" ${id === currentLedger ? 'selected' : ''}>${appData.ledgers[id].name}</option>`;
-        });
-
-        // People List
-        let total = 0;
-        const peopleList = document.getElementById('peopleList');
-        peopleList.innerHTML = '';
-        
-        const people = ledger.people;
-        const sortedIds = Object.keys(people).sort((a,b) => people[a].name.localeCompare(people[b].name));
-
-        if(sortedIds.length === 0) {
-            peopleList.innerHTML = '<li class="list-group-item text-muted text-center">No people added yet.</li>';
+        function checkShortcuts() {
+            const params = new URLSearchParams(window.location.search);
+            const action = params.get('action');
+            if (action === 'borrow' || action === 'repay') {
+                // Wait a bit for render
+                setTimeout(() => {
+                    // Focus search or highlight people to indicate selection needed
+                    alert(`Select a person to ${action}`);
+                }, 500);
+            }
         }
 
-        sortedIds.forEach(pid => {
-            const p = people[pid];
-            let bal = p.transactions.reduce((s, t) => s + (t.type === 'borrow' ? t.amount : -t.amount), 0);
-            total += bal;
-            
-            const colorClass = bal > 0 ? 'text-danger' : bal < 0 ? 'text-primary' : 'text-muted';
-            const balText = bal === 0 ? 'Settled' : formatCurrency(Math.abs(bal));
-            
-            peopleList.innerHTML += `
+        /* ---------- RENDER ---------- */
+        function render() {
+            // Theme already applied
+            const ledger = appData.ledgers[currentLedger];
+
+            // Ledger Select
+            const select = document.getElementById('ledgerSelect');
+            select.innerHTML = '';
+            Object.keys(appData.ledgers).forEach(id => {
+                select.innerHTML += `<option value="${id}" ${id === currentLedger ? 'selected' : ''}>${appData.ledgers[id].name}</option>`;
+            });
+
+            // People List
+            let total = 0;
+            const peopleList = document.getElementById('peopleList');
+            peopleList.innerHTML = '';
+
+            const people = ledger.people;
+            const sortedIds = Object.keys(people).sort((a, b) => people[a].name.localeCompare(people[b].name));
+
+            if (sortedIds.length === 0) {
+                peopleList.innerHTML = '<li class="list-group-item text-muted text-center">No people added yet.</li>';
+            }
+
+            sortedIds.forEach(pid => {
+                const p = people[pid];
+                let bal = p.transactions.reduce((s, t) => s + (t.type === 'borrow' ? t.amount : -t.amount), 0);
+                total += bal;
+
+                const colorClass = bal > 0 ? 'text-danger' : bal < 0 ? 'text-primary' : 'text-muted';
+                const balText = bal === 0 ? 'Settled' : formatCurrency(Math.abs(bal));
+
+                peopleList.innerHTML += `
                 <li class="list-group-item d-flex justify-content-between align-items-center" onclick="openPerson('${pid}')">
                     <span class="text-truncate flex-grow-1">${p.name}</span>
                     <span class="${colorClass} fw-bold amount-col">${bal < 0 ? '+' : ''}${balText}</span>
                 </li>`;
-        });
+            });
 
-        document.getElementById('totalBalance').textContent = formatCurrency(total);
-    }
-
-    function openPerson(pid) {
-        const params = new URLSearchParams(window.location.search);
-        const action = params.get('action');
-        let url = `person.html?id=${pid}`;
-        if(action === 'borrow' || action === 'repay') {
-            url += `&action=${action}`;
+            document.getElementById('totalBalance').textContent = formatCurrency(total);
         }
-        location.assign(url);
-    }
 
-    function switchLedger(id) {
-        currentLedger = id;
-        render();
-    }
+        function openPerson(pid) {
+            const params = new URLSearchParams(window.location.search);
+            const action = params.get('action');
+            let url = `person.html?id=${pid}`;
+            if (action === 'borrow' || action === 'repay') {
+                url += `&action=${action}`;
+            }
+            location.assign(url);
+        }
 
-    /* ---------- MODAL ---------- */
-    let modalCallback = null;
-    const inputModal = new bootstrap.Modal(document.getElementById('inputModal'));
-    
-    function showModal(title, placeholder, defaultValue, callback) {
-        document.getElementById('modalTitle').textContent = title;
-        const input = document.getElementById('modalInput');
-        input.placeholder = placeholder || '';
-        input.value = defaultValue || '';
-        modalCallback = callback;
-        inputModal.show();
-        setTimeout(() => input.focus(), 500);
-    }
-    
-    document.getElementById('modalSaveBtn').onclick = function () { 
-        const val = document.getElementById('modalInput').value;
-        if (modalCallback) modalCallback(val); 
-        inputModal.hide(); 
-    }
-
-    /* ---------- ACTIONS ---------- */
-    function showAddPerson() {
-        showModal("Add Person", "Name", "", async name => {
-            if (!name) return;
-            const id = Date.now();
-            appData.ledgers[currentLedger].people[id] = { name, transactions: [] };
-            await saveData();
-            render();
-        });
-    }
-
-    function showAddLedger() {
-        showModal("Add Ledger", "Ledger Name", "", async name => {
-            if (!name) return;
-            const id = Date.now();
-            appData.ledgers[id] = { name, people: {} };
+        function switchLedger(id) {
             currentLedger = id;
-            await saveData();
             render();
-        });
-    }
-
-    function editLedger() {
-        const ledger = appData.ledgers[currentLedger];
-        showModal("Rename Ledger", "Ledger Name", ledger.name, async name => {
-            if (!name) return;
-            ledger.name = name;
-            await saveData();
-            render();
-        });
-    }
-
-    async function deleteLedger() {
-        if(Object.keys(appData.ledgers).length <= 1) {
-            alert("Cannot delete the last ledger.");
-            return;
         }
-        
-        const ledger = appData.ledgers[currentLedger];
-        if(!confirm(`Delete ledger "${ledger.name}" and ALL its data?`)) return;
 
-        delete appData.ledgers[currentLedger];
-        currentLedger = Object.keys(appData.ledgers)[0];
-        await saveData();
-        render();
-    }
-</script>
+        /* ---------- MODAL ---------- */
+        let modalCallback = null;
+        const inputModal = new bootstrap.Modal(document.getElementById('inputModal'));
+
+        function showModal(title, placeholder, defaultValue, callback) {
+            document.getElementById('modalTitle').textContent = title;
+            const input = document.getElementById('modalInput');
+            input.placeholder = placeholder || '';
+            input.value = defaultValue || '';
+            modalCallback = callback;
+            inputModal.show();
+            setTimeout(() => input.focus(), 500);
+        }
+
+        document.getElementById('modalSaveBtn').onclick = function () {
+            const val = document.getElementById('modalInput').value;
+            if (modalCallback) modalCallback(val);
+            inputModal.hide();
+        }
+
+        /* ---------- ACTIONS ---------- */
+        function showAddPerson() {
+            showModal("Add Person", "Name", "", async name => {
+                if (!name) return;
+                const id = Date.now();
+                appData.ledgers[currentLedger].people[id] = { name, transactions: [] };
+                await saveData();
+                render();
+            });
+        }
+
+        function showAddLedger() {
+            showModal("Add Ledger", "Ledger Name", "", async name => {
+                if (!name) return;
+                const id = Date.now();
+                appData.ledgers[id] = { name, people: {} };
+                currentLedger = id;
+                await saveData();
+                render();
+            });
+        }
+
+        function editLedger() {
+            const ledger = appData.ledgers[currentLedger];
+            showModal("Rename Ledger", "Ledger Name", ledger.name, async name => {
+                if (!name) return;
+                ledger.name = name;
+                await saveData();
+                render();
+            });
+        }
+
+        async function deleteLedger() {
+            if (Object.keys(appData.ledgers).length <= 1) {
+                alert("Cannot delete the last ledger.");
+                return;
+            }
+
+            const ledger = appData.ledgers[currentLedger];
+            if (!confirm(`Delete ledger "${ledger.name}" and ALL its data?`)) return;
+
+            delete appData.ledgers[currentLedger];
+            currentLedger = Object.keys(appData.ledgers)[0];
+            await saveData();
+            render();
+        }
+    </script>
 </body>
+
 </html>
