@@ -151,5 +151,15 @@ function disableZoom() {
 	document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
 }
 
+function formatCurrency(amount) {
+	if (!appData) return amount;
+	return new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD',
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	}).format(amount).replace('$', appData.settings.currency);
+}
+
 /* ---------- INITIALIZATION ---------- */
 disableZoom();
