@@ -105,12 +105,33 @@ function logout() {
 }
 
 /* ---------- GITHUB SYNC (Simplified) ---------- */
-let gistId = null; // In a real multi-page app, this might need to be stored in appData or discovered
+async function findBackupGist(token) {
+	const res = await fetch('https://api.github.com/gists', {
+		headers: { Authorization: `token ${token}` }
+	});
+	const gists = await res.json();
+	return gists.find(g => g.description === "DebtPal Backup" || g.description === "LoanTracker Backup");
+}
+
+async function restoreFromGist(token) {
+	const gist = await findBackupGist(token);
+	if (!gist) throw new Error("No backup found");
+
+	const file = gist.files["loan-backup.json"];
+	if (!file) throw new Error("Backup file missing");
+
+	const contentRes = await fetch(file.raw_url);
+	return { data: await contentRes.json(), id: gist.id };
+}
+
 async function syncToGist(token, encryptedData) {
-	// This is a simplified fire-and-forget for now to match previous logic. 
-	// Ideally gistId should be stored in appData or local storage to avoid searching every time.
-	// For now, we'll skip the complexity of finding the Gist ID every time on every page save.
-	// NOTE: In the original code, gistId was a global variable. We need to store it in appData to persist it across pages.
+	if (!appData.settings.gistId) {
+		// Try to find existing first
+		try {
+			const existing = await findBackupGist(token);
+			if (existing) appData.settings.gistId = existing.id;
+		} catch (e) { console.error("Error searching gists", e); }
+	}
 
 	if (!appData.settings.gistId) {
 		// Create new Gist
@@ -118,13 +139,11 @@ async function syncToGist(token, encryptedData) {
 			const res = await fetch('https://api.github.com/gists', {
 				method: 'POST',
 				headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
-				body: JSON.stringify({ public: false, description: "LoanTracker Backup", files: { "loan-backup.json": { content: JSON.stringify(encryptedData) } } })
+				body: JSON.stringify({ public: false, description: "DebtPal Backup", files: { "loan-backup.json": { content: JSON.stringify(encryptedData) } } })
 			});
 			const gist = await res.json();
 			appData.settings.gistId = gist.id;
-			// Save again to persist the gistId (careful of infinite loop, but saveData encrypts first)
-			// We'll just update the local object for next time.
-			// To properly save the new gistId, we'd need to re-encrypt and save locally, but let's avoid recursion.
+			// Persist the new gistId
 			const newEncrypted = await encryptData(appData, getSessionPin());
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(newEncrypted));
 		} catch (e) { console.error("Gist create failed", e); }
