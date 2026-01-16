@@ -1,4 +1,4 @@
-const cacheName = 'loantracker-cache-v3';
+const cacheName = 'loantracker-cache-v4';
 const filesToCache = [
   './index.html',
   './reset.html',

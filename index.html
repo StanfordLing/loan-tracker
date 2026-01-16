@@ -211,8 +211,27 @@
       function updateDisplay() { pinDisplay.textContent = "●".repeat(pinValue.length); pinError.textContent = ""; }
       async function unlockPin() {
         if (pinValue.length < 6) { pinError.textContent = "PIN must be at least 6 digits."; return; }
-        if (!dataEncrypted) { appData = { ledgers: { default: { name: 'Personal', people: {} } }, settings: { currency: '₹', theme: 'system' } }; currentLedger = 'default'; persist(); showApp(); return; }
-        try { appData = await decryptData(JSON.parse(dataEncrypted), pinValue); currentLedger = Object.keys(appData.ledgers)[0]; githubToken = appData.settings.githubToken || ""; showApp(); render(); if (githubToken) syncFromGist(); checkReminders(); } catch (e) { pinError.textContent = "Incorrect PIN"; pinValue = ""; updateDisplay(); }
+        if (!dataEncrypted) {
+          appData = { ledgers: { default: { name: 'Personal', people: {} } }, settings: { currency: '₹', theme: 'system' } };
+          currentLedger = 'default';
+          await persist(); // Wait for encryption to finish
+          showApp();
+          return;
+        }
+        try {
+          appData = await decryptData(JSON.parse(dataEncrypted), pinValue);
+          currentLedger = Object.keys(appData.ledgers)[0];
+          githubToken = appData.settings.githubToken || "";
+          showApp();
+          render();
+          if (githubToken) syncFromGist();
+          checkReminders();
+        } catch (e) {
+          console.error(e);
+          pinError.textContent = "Incorrect PIN";
+          pinValue = "";
+          updateDisplay();
+        }
       }
       function showApp() { document.getElementById('lockPage').classList.add('d-none'); document.getElementById('app').classList.remove('d-none'); }
 
@@ -259,6 +278,7 @@
 
       /* ---------- RENDER ---------- */
       function render() {
+        if (!appData) return;
         const themeVal = appData.settings.theme;
         document.body.className = themeVal === 'dark' ? 'dark' : themeVal === 'light' ? '' : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : '');
         document.getElementById('currency').value = appData.settings.currency;
