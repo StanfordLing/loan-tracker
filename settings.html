@@ -203,6 +203,14 @@
             window.location.href = 'index.html';
         }
     }
+
+    function goBack() {
+        if (history.length > 1) {
+            history.back();
+        } else {
+            window.location.href = 'dashboard.html';
+        }
+    }
 </script>
 </body>
 </html>
