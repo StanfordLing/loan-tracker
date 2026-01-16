@@ -34,7 +34,14 @@
       </div>
   </div>
 
-  <button class="btn btn-success mb-3 w-100" onclick="showTxForm()">+ Add Transaction</button>
+  <div class="row gx-2 mb-3">
+    <div class="col-6">
+      <button class="btn btn-danger w-100" onclick="showTxForm('borrow')">Borrow</button>
+    </div>
+    <div class="col-6">
+      <button class="btn btn-primary w-100" onclick="showTxForm('repay')">Repay</button>
+    </div>
+  </div>
 
   <ul class="list-group shadow-sm" id="txList"></ul>
 </div>
